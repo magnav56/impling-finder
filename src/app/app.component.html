@@ -1,0 +1,11 @@
+<div>
+  <h1>Status: {{ loading ? 'Loading...' : 'Up to date' }}</h1>
+  <button class="pb" (click)="test()">fetch</button>
+
+  <div *ngIf="implings?.length">
+    <li *ngFor="let item of implings; index as i;" [class.dragon]="item.npcid === 1644">
+      World: {{ item.world }} - {{ getImplingName(item.npcid) }} - <a href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }},{{ item.ycoord }}</a>
+    </li>
+    
+  </div>
+</div>
