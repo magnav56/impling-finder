@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,12 @@ export class AppComponent {
   public loading = false;
 
   ngOnInit() {}
+
+  public start() {
+    setInterval(() => {
+      this.test();
+    }, 4000);
+  }
 
   public async test() {
     if (this.loading) return;
