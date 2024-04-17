@@ -251,7 +251,7 @@ class AppComponent {
     }
     playAudio() {
         let audio = new Audio();
-        audio.src = '../assets/whistle.mp3';
+        audio.src = './assets/whistle.mp3';
         audio.load();
         audio.play();
     }
