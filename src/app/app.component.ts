@@ -11,21 +11,26 @@ export class AppComponent {
   constructor(private readonly http: HttpClient) {}
   public implings = [];
   public loading = false;
+  public started = false;
+  public deActivatedIds = [];
+  public showPuro = true;
 
   ngOnInit() {}
 
   public start() {
+    this.started = true;
+    this.fetch();
     setInterval(() => {
-      this.test();
+      this.fetch();
     }, 4000);
   }
 
-  public async test() {
+  private async fetch() {
     if (this.loading) return;
     this.loading = true;
     const data = await this.http
       .get<any>(
-        'https://puos0bfgxc2lno5-implingdb.adb.us-phoenix-1.oraclecloudapps.com/ords/impling/implingdev/dev?limit=20'
+        'https://puos0bfgxc2lno5-implingdb.adb.us-phoenix-1.oraclecloudapps.com/ords/impling/implingdev/dev?limit=30'
       )
       .toPromise();
 
@@ -55,9 +60,41 @@ export class AppComponent {
         return 'Ninja';
       case 1644:
         return 'Dragon';
+      case 7233:
+        return 'Lucky';
       case 8741:
         return 'Crystal';
     }
     return id;
+  }
+
+  public isActivated(id) {
+    return !this.deActivatedIds.includes(id);
+  }
+
+  public toggleId(id) {
+    if (this.deActivatedIds.includes(id)) {
+      this.deActivatedIds = this.deActivatedIds.filter((i) => i !== id);
+    } else {
+      this.deActivatedIds.push(id);
+    }
+  }
+
+  public isInPuro(x, y) {
+    if (x >= 2557 && x <= 2627 && y >= 4287 && y <= 4353) {
+      return true;
+    }
+    return false;
+  }
+
+  public togglePuro() {
+    this.showPuro = !this.showPuro;
+  }
+
+  public showImpling(impling) {
+    return (
+      this.isActivated(impling.npcid) &&
+      (this.showPuro ? true : !this.isInPuro(impling.xcoord, impling.ycoord))
+    );
   }
 }

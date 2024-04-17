@@ -1,11 +1,25 @@
 <div>
   <h1>Status: {{ loading ? 'Loading...' : 'Up to date' }}</h1>
-  <button class="pb" (click)="start()">fetch</button>
+  <button class="pb" (click)="start()" *ngIf="!started">Start</button>
+
+  <div class="pb" *ngIf="implings?.length">
+    <input type="checkbox" id="crystal" name="crystal" (click)="toggleId(8741)" checked>
+    <label for="crystal">Crystal</label><br>
+    <input type="checkbox" id="magpie" name="magpie" (click)="toggleId(1642)" checked>
+    <label for="magpie">Magpie</label><br>
+    <input type="checkbox" id="ninja" name="ninja" (click)="toggleId(1643)" checked>
+    <label for="ninja">Ninja</label><br>
+    <input type="checkbox" id="dragon" name="dragon" (click)="toggleId(1644)" checked>
+    <label for="dragon">Dragon</label><br><br>
+    <input type="checkbox" id="puropuro" name="puropuro" (click)="togglePuro()" checked>
+    <label for="puropuro">Puro-Puro</label>
+  </div>
 
   <div *ngIf="implings?.length">
-    <li *ngFor="let item of implings; index as i;" [class.dragon]="item.npcid === 1644">
-      {{ item.insertedtime | date: 'mediumTime' }} - World {{ item.world }} - {{ getImplingName(item.npcid) }} - <a href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }},{{ item.ycoord }}</a>
-    </li>
-    
+    <ng-container *ngFor="let item of implings; index as i;">
+      <li [class.dragon]="item.npcid === 1644" *ngIf="showImpling(item)">
+        {{ item.insertedtime | date: 'mediumTime' }} - World {{ item.world }} - {{ getImplingName(item.npcid) }} - <a href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }},{{ item.ycoord }}</a>  
+      </li>
+    </ng-container>
   </div>
 </div>
