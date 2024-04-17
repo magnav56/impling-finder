@@ -1,3 +1,5 @@
+pour deploy : ng build --output-path docs --base-href prod
+
 # ImplingFinder
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.0.
