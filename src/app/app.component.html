@@ -2,7 +2,7 @@
   <h1>Status: {{ loading ? 'Loading...' : 'Up to date' }}</h1>
   <button class="pb" (click)="start()" *ngIf="!started">Start</button>
 
-  <div class="pb" *ngIf="implings?.length">
+  <div class="pb" *ngIf="newImplings?.length">
     <input type="checkbox" id="crystal" name="crystal" (click)="toggleId(8741)" checked>
     <label for="crystal">Crystal</label><br>
     <input type="checkbox" id="magpie" name="magpie" (click)="toggleId(1642)" checked>
@@ -17,9 +17,9 @@
     <label for="puropuro">Puro-Puro</label>
   </div>
 
-  <div *ngIf="implings?.length">
-    <ng-container *ngFor="let item of implings; index as i;">
-      <li [class.dragon]="item.npcid === 1644" *ngIf="showImpling(item)">
+  <div *ngIf="newImplings?.length">
+    <ng-container *ngFor="let item of newImplings; index as i;">
+      <li [class.dragon]="item.npcid === 1644" [class.lucky]="item.npcid === 7233" *ngIf="showImpling(item)">
         {{ item.insertedtime | date: 'mediumTime' }} - World {{ item.world }} - {{ getImplingName(item.npcid) }} - <a href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }},{{ item.ycoord }}</a>  
       </li>
     </ng-container>
