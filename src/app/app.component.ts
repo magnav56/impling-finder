@@ -2,6 +2,16 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { timer } from 'rxjs';
 
+interface Impling {
+  discoveredtime: number;
+  insertedtime: string;
+  npcid: number;
+  plane: number;
+  world: number;
+  xcoord: number;
+  ycoord: number;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -9,11 +19,12 @@ import { timer } from 'rxjs';
 })
 export class AppComponent {
   constructor(private readonly http: HttpClient) {}
-  public implings = [];
+  public implings: Impling[] = [];
   public loading = false;
   public started = false;
   public deActivatedIds = [];
   public showPuro = true;
+  public newImplings: Impling[] = [];
 
   ngOnInit() {}
 
@@ -35,7 +46,30 @@ export class AppComponent {
       .toPromise();
 
     this.loading = false;
+    this.newImplings = data.items;
+    this.setImplings(data.items);
     this.implings = data.items;
+  }
+
+  private shouldPlayWhistle(newImplings: Impling[]) {
+    if (newImplings.some((i) => this.showImpling(i))) {
+      this.playAudio();
+    }
+  }
+
+  private setImplings(implings: Impling[]) {
+    let newImplings = implings.filter(
+      (i) =>
+        !this.implings.find(
+          (imp) =>
+            imp.discoveredtime === i.discoveredtime &&
+            imp.xcoord === i.xcoord &&
+            imp.ycoord === i.ycoord
+        )
+    );
+    this.shouldPlayWhistle(newImplings);
+    this.implings.unshift(...newImplings);
+    this.implings = this.implings.slice(0, 30);
   }
 
   public getImplingName(id) {
@@ -91,10 +125,17 @@ export class AppComponent {
     this.showPuro = !this.showPuro;
   }
 
-  public showImpling(impling) {
+  public showImpling(impling): boolean {
     return (
       this.isActivated(impling.npcid) &&
       (this.showPuro ? true : !this.isInPuro(impling.xcoord, impling.ycoord))
     );
+  }
+
+  public playAudio() {
+    let audio = new Audio();
+    audio.src = '../assets/whistle.mp3';
+    audio.load();
+    audio.play();
   }
 }
