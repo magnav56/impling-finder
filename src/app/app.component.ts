@@ -61,7 +61,7 @@ export class AppComponent {
       case 1644:
         return 'Dragon';
       case 7233:
-        return 'Dragon';
+        return 'Lucky';
       case 8741:
         return 'Crystal';
     }
