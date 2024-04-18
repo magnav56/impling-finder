@@ -25,6 +25,7 @@ export class AppComponent {
   public deActivatedIds = [];
   public showPuro = true;
   public newImplings: Impling[] = [];
+  public selectedSound: string = '';
 
   ngOnInit() {}
 
@@ -134,9 +135,30 @@ export class AppComponent {
 
   public playAudio() {
     let audio = new Audio();
-    audio.src = './assets/impling.m4a';
+    if (this.selectedSound === '') return;
+    switch (this.selectedSound) {
+      case 'impling': {
+        audio.src = './assets/impling.m4a';
+        break;
+      }
+      case 'whistle': {
+        audio.src = './assets/whistle.mp3';
+        break;
+      }
+      case 'iphone': {
+        audio.src = './assets/iphone.mp3';
+        break;
+      }
+      default: {
+        return;
+      }
+    }
     audio.volume = 0.3;
     audio.load();
     audio.play();
+  }
+
+  public onChange(sound: string) {
+    this.selectedSound = sound;
   }
 }

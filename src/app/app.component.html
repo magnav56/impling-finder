@@ -3,6 +3,13 @@
   <button class="pb" (click)="start()" *ngIf="!started">Start</button>
 
   <div class="pb" *ngIf="newImplings?.length">
+    <p>Notification sound:</p>
+    <select (change)="onChange($event.target.value)" name="sounds">
+      <option value="">--None--</option>
+      <option value="impling">Impling!</option>
+      <option value="whistle">Whistle</option>
+      <option value="iphone">Iphone</option>
+    </select><br><br>
     <input type="checkbox" id="crystal" name="crystal" (click)="toggleId(8741)" checked>
     <label for="crystal">Crystal</label><br>
     <input type="checkbox" id="magpie" name="magpie" (click)="toggleId(1642)" checked>
