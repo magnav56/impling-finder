@@ -105,7 +105,13 @@
 
     <section class="map">
       <ng-container *ngIf="selected; else noMap">
-        <iframe class="map__frame" [src]="mapUrl" title="Impling location map"></iframe>
+        <div class="map__view">
+          <iframe #frame class="map__frame" [src]="mapUrl" (load)="onMapLoad(frame)" title="Impling location map"></iframe>
+          <div class="crosshair" *ngIf="!mapMoved" [ngClass]="'crosshair--' + selected.type.slug" aria-hidden="true">
+            <span class="crosshair__tile"></span>
+          </div>
+          <button class="btn btn--float" *ngIf="mapMoved" (click)="recenterMap()">⌖ Back to impling</button>
+        </div>
         <footer class="map__footer">
           <span class="name" [ngClass]="'text--' + selected.type.slug">{{ selected.type.name }}</span>
           <span>W{{ selected.latest.world }}</span>

@@ -112,6 +112,8 @@ export class AppComponent implements OnInit, OnDestroy {
   public sightings: Sighting[] = [];
   public selected: Sighting | null = null;
   public mapUrl: SafeResourceUrl | null = null;
+  public mapMoved = false;
+  private mapLoading = false;
   public copiedKey: string | null = null;
   public audioUnlocked = false;
 
@@ -302,13 +304,44 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public select(s: Sighting) {
     this.selected = s;
+    this.recenterMap();
+  }
+
+  public recenterMap() {
+    if (!this.selected) return;
+    this.mapMoved = false;
+    this.mapLoading = true;
+    // The cache-buster makes the iframe reload even if the URL is unchanged.
     this.mapUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-      this.getMapUrl(s.latest)
+      `${this.getMapUrl(this.selected.latest)}&t=${Date.now()}`
     );
   }
 
+  // explv centres on a tile's corner; +0.5 centres on the tile itself so it
+  // lines up with the crosshair.
   public getMapUrl(i: Impling): string {
-    return `https://explv.github.io/?centreX=${i.xcoord}&centreY=${i.ycoord}&centreZ=${i.plane || 0}&zoom=11`;
+    return `https://explv.github.io/?centreX=${i.xcoord + 0.5}&centreY=${i.ycoord + 0.5}&centreZ=${i.plane || 0}&zoom=11`;
+  }
+
+  // The map is cross-origin, so panning can't be observed directly. Clicking
+  // into it moves focus to the iframe, which blurs this window: assume the
+  // map may have moved and hide the crosshair.
+  @HostListener('window:blur')
+  public onBlur() {
+    setTimeout(() => {
+      if (!this.mapLoading && document.activeElement instanceof HTMLIFrameElement) {
+        this.mapMoved = true;
+      }
+    });
+  }
+
+  // explv focuses itself when it starts up. Give focus back to this page so
+  // the user's first real click into the map is still detected as a blur.
+  public onMapLoad(frame: HTMLIFrameElement) {
+    setTimeout(() => {
+      if (document.activeElement === frame) frame.blur();
+      this.mapLoading = false;
+    }, 500);
   }
 
   public async copyWorld(s: Sighting, event: MouseEvent) {
