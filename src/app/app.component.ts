@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { timer } from 'rxjs';
 
@@ -18,7 +19,10 @@ interface Impling {
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly sanitizer: DomSanitizer
+  ) {}
   public implings: Impling[] = [];
   public loading = false;
   public started = false;
@@ -26,6 +30,8 @@ export class AppComponent {
   public showPuro = true;
   public newImplings: Impling[] = [];
   public selectedSound: string = '';
+  public mapImpling: Impling | null = null;
+  public mapUrl: SafeResourceUrl | null = null;
 
   ngOnInit() {}
 
@@ -160,5 +166,23 @@ export class AppComponent {
 
   public onChange(sound: string) {
     this.selectedSound = sound;
+  }
+
+  public getMapUrl(impling: Impling): string {
+    return `https://explv.github.io/?centreX=${impling.xcoord}&centreY=${impling.ycoord}&centreZ=${impling.plane || 0}&zoom=11`;
+  }
+
+  public openMap(impling: Impling, event: MouseEvent) {
+    // Let ctrl/cmd/shift/middle clicks open the map in a new tab as before.
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) return;
+    event.preventDefault();
+    this.mapImpling = impling;
+    this.mapUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.getMapUrl(impling));
+  }
+
+  @HostListener('document:keydown.escape')
+  public closeMap() {
+    this.mapImpling = null;
+    this.mapUrl = null;
   }
 }
