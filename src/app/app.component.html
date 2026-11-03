@@ -1,95 +1,121 @@
-<main class="container">
-  <header class="header">
-    <h1>Impling Finder</h1>
-    <span class="status" [class.status--live]="started" *ngIf="started">
-      <span class="status__dot" [class.status__dot--busy]="loading"></span>
-      {{ loading ? 'Loading...' : 'Up to date' }}
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand__mark">◆</span> Impling Finder</div>
+
+    <span class="status" [ngClass]="'status--' + connection">
+      <span class="status__dot"></span>
+      {{ statusLabel() }}
     </span>
+
+    <div class="topbar__actions">
+      <button
+        class="btn btn--ghost"
+        [class.btn--on]="settings.alertsEnabled"
+        (click)="toggleAlerts()"
+        [title]="settings.alertsEnabled ? 'Turn off sounds and desktop notifications' : 'Turn on sounds and desktop notifications'"
+      >
+        {{ settings.alertsEnabled ? '🔔 Alerts on' : '🔕 Enable alerts' }}
+      </button>
+      <button class="btn btn--ghost" [class.btn--on]="showSettings" (click)="showSettings = !showSettings">
+        ⚙ Filters &amp; sounds
+      </button>
+    </div>
   </header>
 
-  <section class="card intro" *ngIf="!started">
-    <p>Live feed of impling spawns. Press start to begin polling.</p>
-    <button class="btn" (click)="start()">Start</button>
-  </section>
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="settings" *ngIf="showSettings">
+        <div class="settings__grid">
+          <span class="label">Impling</span>
+          <span class="label">Show</span>
+          <span class="label">Alert sound</span>
+          <ng-container *ngFor="let t of filterTypes">
+            <span class="name" [ngClass]="'text--' + t.slug">{{ t.name }}</span>
+            <label class="switch">
+              <input type="checkbox" [checked]="!isHidden(t.id)" (change)="toggleType(t.id)" />
+              <span></span>
+            </label>
+            <select class="select" (change)="setSound(t.id, $event.target.value)">
+              <option *ngFor="let s of soundOptions" [value]="s.value" [selected]="s.value === (settings.sounds[t.id] || '')">
+                {{ s.label }}
+              </option>
+            </select>
+          </ng-container>
+        </div>
 
-  <section class="card controls" *ngIf="newImplings?.length">
-    <div class="field">
-      <label class="field__label" for="sounds">Notification sound</label>
-      <select id="sounds" class="select" (change)="onChange($event.target.value)" name="sounds">
-        <option value="">--None--</option>
-        <option value="impling">Impling!</option>
-        <option value="whistle">Whistle</option>
-        <option value="iphone">Iphone</option>
-      </select>
-    </div>
+        <div class="settings__row">
+          <span>Include Puro-Puro spawns</span>
+          <label class="switch">
+            <input type="checkbox" [checked]="settings.showPuro" (change)="togglePuro()" />
+            <span></span>
+          </label>
+        </div>
 
-    <div class="field">
-      <span class="field__label">Show</span>
-      <div class="chips">
-        <label class="chip">
-          <input type="checkbox" name="crystal" (click)="toggleId(8741)" checked>
-          <span>Crystal</span>
-        </label>
-        <label class="chip">
-          <input type="checkbox" name="magpie" (click)="toggleId(1642)" checked>
-          <span>Magpie</span>
-        </label>
-        <label class="chip">
-          <input type="checkbox" name="ninja" (click)="toggleId(1643)" checked>
-          <span>Ninja</span>
-        </label>
-        <label class="chip chip--dragon">
-          <input type="checkbox" name="dragon" (click)="toggleId(1644)" checked>
-          <span>Dragon</span>
-        </label>
-        <label class="chip chip--lucky">
-          <input type="checkbox" name="lucky" (click)="toggleId(7233)" checked>
-          <span>Lucky</span>
-        </label>
-        <label class="chip">
-          <input type="checkbox" name="puropuro" (click)="togglePuro()" checked>
-          <span>Puro-Puro</span>
-        </label>
+        <div class="settings__row">
+          <span>Minimum tier</span>
+          <select class="select" (change)="setMinTier($event.target.value)">
+            <option *ngFor="let o of tierOptions" [value]="o.value" [selected]="o.value === settings.minTier">
+              {{ o.label }}
+            </option>
+          </select>
+        </div>
+      </section>
+
+      <div class="notice" *ngIf="settings.alertsEnabled && !audioUnlocked">
+        Click anywhere on the page to allow alert sounds.
       </div>
-    </div>
-  </section>
+      <div class="notice" *ngIf="settings.alertsEnabled && notificationsBlocked()">
+        Desktop notifications are blocked for this site in your browser settings.
+      </div>
+      <div class="notice notice--warn" *ngIf="staleFor() as stale">
+        No new spawns reported for {{ stale }}. The data feed may be down.
+      </div>
 
-  <section class="card feed" *ngIf="newImplings?.length">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>World</th>
-          <th>Impling</th>
-          <th>Location</th>
-        </tr>
-      </thead>
-      <tbody>
-        <ng-container *ngFor="let item of newImplings">
-          <tr [class.dragon]="item.npcid === 1644" [class.lucky]="item.npcid === 7233" *ngIf="showImpling(item)">
-            <td class="muted">{{ item.insertedtime | date: 'mediumTime' }}</td>
-            <td>{{ item.world }}</td>
-            <td class="name">{{ getImplingName(item.npcid) }}</td>
-            <td>
-              <a target="_blank" rel="noopener" [href]="getMapUrl(item)" (click)="openMap(item, $event)">{{ item.xcoord }}, {{ item.ycoord }}</a>
-            </td>
-          </tr>
-        </ng-container>
-      </tbody>
-    </table>
-  </section>
-</main>
+      <div class="empty" *ngIf="!sightings.length">
+        {{ connection === 'live' ? 'No spawns match your filters.' : 'Loading spawns…' }}
+      </div>
 
-<div class="modal" *ngIf="mapImpling" (click)="closeMap()">
-  <div class="modal__dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
-    <div class="modal__header">
-      <span class="modal__title">
-        <span class="name">{{ getImplingName(mapImpling.npcid) }}</span>
-        <span class="muted">World {{ mapImpling.world }} &middot; {{ mapImpling.xcoord }}, {{ mapImpling.ycoord }}</span>
-      </span>
-      <a target="_blank" rel="noopener" [href]="getMapUrl(mapImpling)">Open in new tab</a>
-      <button class="modal__close" (click)="closeMap()" aria-label="Close map">&times;</button>
-    </div>
-    <iframe class="modal__map" [src]="mapUrl" title="Impling location map"></iframe>
+      <ul class="feed">
+        <li
+          *ngFor="let s of sightings; trackBy: trackSighting"
+          class="sighting"
+          [ngClass]="'sighting--' + s.type.slug"
+          [class.sighting--selected]="isSelected(s)"
+          [style.opacity]="isSelected(s) ? 1 : fade(s)"
+          (click)="select(s)"
+        >
+          <div class="sighting__row">
+            <span class="name">{{ s.type.name }}</span>
+            <span class="badge badge--new" *ngIf="isNew(s)">NEW</span>
+            <span class="badge" *ngIf="s.count > 1" [title]="'Reported ' + s.count + ' times'">×{{ s.count }}</span>
+            <span class="sighting__world">W{{ s.latest.world }}</span>
+            <button class="copy" (click)="copyWorld(s, $event)" title="Copy world number">
+              {{ copiedKey === s.key ? '✓' : '⧉' }}
+            </button>
+          </div>
+          <div class="sighting__row sighting__meta">
+            <span>{{ s.area }}</span>
+            <span>·</span>
+            <span class="tabular">{{ age(s.seenAt) }}</span>
+            <span class="sighting__coords tabular">{{ s.latest.xcoord }}, {{ s.latest.ycoord }}</span>
+          </div>
+        </li>
+      </ul>
+    </aside>
+
+    <section class="map">
+      <ng-container *ngIf="selected; else noMap">
+        <iframe class="map__frame" [src]="mapUrl" title="Impling location map"></iframe>
+        <footer class="map__footer">
+          <span class="name" [ngClass]="'text--' + selected.type.slug">{{ selected.type.name }}</span>
+          <span>W{{ selected.latest.world }}</span>
+          <span class="muted">{{ selected.area }} · {{ selected.latest.xcoord }}, {{ selected.latest.ycoord }} · {{ age(selected.seenAt) }}</span>
+          <a class="map__open" target="_blank" rel="noopener" [href]="getMapUrl(selected.latest)">Open in new tab ↗</a>
+        </footer>
+      </ng-container>
+      <ng-template #noMap>
+        <div class="map__empty">Select a spawn to see it on the map.</div>
+      </ng-template>
+    </section>
   </div>
 </div>
