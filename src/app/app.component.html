@@ -71,7 +71,7 @@
             <td>{{ item.world }}</td>
             <td class="name">{{ getImplingName(item.npcid) }}</td>
             <td>
-              <a target="_blank" rel="noopener" href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }}, {{ item.ycoord }}</a>
+              <a target="_blank" rel="noopener" [href]="getMapUrl(item)" (click)="openMap(item, $event)">{{ item.xcoord }}, {{ item.ycoord }}</a>
             </td>
           </tr>
         </ng-container>
@@ -79,3 +79,17 @@
     </table>
   </section>
 </main>
+
+<div class="modal" *ngIf="mapImpling" (click)="closeMap()">
+  <div class="modal__dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <span class="modal__title">
+        <span class="name">{{ getImplingName(mapImpling.npcid) }}</span>
+        <span class="muted">World {{ mapImpling.world }} &middot; {{ mapImpling.xcoord }}, {{ mapImpling.ycoord }}</span>
+      </span>
+      <a target="_blank" rel="noopener" [href]="getMapUrl(mapImpling)">Open in new tab</a>
+      <button class="modal__close" (click)="closeMap()" aria-label="Close map">&times;</button>
+    </div>
+    <iframe class="modal__map" [src]="mapUrl" title="Impling location map"></iframe>
+  </div>
+</div>
