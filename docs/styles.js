@@ -441,7 +441,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(true);
 // Module
-___CSS_LOADER_EXPORT___.push([module.i, "/* You can add global styles to this file, and also import other style files */\n", "",{"version":3,"sources":["webpack://src/styles.css"],"names":[],"mappings":"AAAA,8EAA8E","sourcesContent":["/* You can add global styles to this file, and also import other style files */\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.i, ":root {\n  --bg: #15130f;\n  --surface: #1f1b16;\n  --border: #3a3329;\n  --text: #ece4d4;\n  --muted: #9a8f7d;\n  --accent: #d4af37;\n  --dragon: #e5534b;\n  --lucky: #faa200;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background: var(--bg);\n  color: var(--text);\n  font-family: system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\n  line-height: 1.5;\n}\n", "",{"version":3,"sources":["webpack://src/styles.css"],"names":[],"mappings":"AAAA;EACE,aAAa;EACb,kBAAkB;EAClB,iBAAiB;EACjB,eAAe;EACf,gBAAgB;EAChB,iBAAiB;EACjB,iBAAiB;EACjB,gBAAgB;AAClB;;AAEA;EACE,sBAAsB;AACxB;;AAEA;EACE,SAAS;EACT,qBAAqB;EACrB,kBAAkB;EAClB,qEAAqE;EACrE,gBAAgB;AAClB","sourcesContent":[":root {\n  --bg: #15130f;\n  --surface: #1f1b16;\n  --border: #3a3329;\n  --text: #ece4d4;\n  --muted: #9a8f7d;\n  --accent: #d4af37;\n  --dragon: #e5534b;\n  --lucky: #faa200;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background: var(--bg);\n  color: var(--text);\n  font-family: system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\n  line-height: 1.5;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ __webpack_exports__["default"] = (___CSS_LOADER_EXPORT___);
 
