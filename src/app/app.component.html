@@ -1,34 +1,81 @@
-<div>
-  <h1>Status: {{ loading ? 'Loading...' : 'Up to date' }}</h1>
-  <button class="pb" (click)="start()" *ngIf="!started">Start</button>
+<main class="container">
+  <header class="header">
+    <h1>Impling Finder</h1>
+    <span class="status" [class.status--live]="started" *ngIf="started">
+      <span class="status__dot" [class.status__dot--busy]="loading"></span>
+      {{ loading ? 'Loading...' : 'Up to date' }}
+    </span>
+  </header>
 
-  <div class="pb" *ngIf="newImplings?.length">
-    <p>Notification sound:</p>
-    <select (change)="onChange($event.target.value)" name="sounds">
-      <option value="">--None--</option>
-      <option value="impling">Impling!</option>
-      <option value="whistle">Whistle</option>
-      <option value="iphone">Iphone</option>
-    </select><br><br>
-    <input type="checkbox" id="crystal" name="crystal" (click)="toggleId(8741)" checked>
-    <label for="crystal">Crystal</label><br>
-    <input type="checkbox" id="magpie" name="magpie" (click)="toggleId(1642)" checked>
-    <label for="magpie">Magpie</label><br>
-    <input type="checkbox" id="ninja" name="ninja" (click)="toggleId(1643)" checked>
-    <label for="ninja">Ninja</label><br>
-    <input type="checkbox" id="dragon" name="dragon" (click)="toggleId(1644)" checked>
-    <label for="dragon">Dragon</label><br>
-    <input type="checkbox" id="lucky" name="lucky" (click)="toggleId(7233)" checked>
-    <label for="lucky">Lucky</label><br><br>
-    <input type="checkbox" id="puropuro" name="puropuro" (click)="togglePuro()" checked>
-    <label for="puropuro">Puro-Puro</label>
-  </div>
+  <section class="card intro" *ngIf="!started">
+    <p>Live feed of impling spawns. Press start to begin polling.</p>
+    <button class="btn" (click)="start()">Start</button>
+  </section>
 
-  <div *ngIf="newImplings?.length">
-    <ng-container *ngFor="let item of newImplings; index as i;">
-      <li [class.dragon]="item.npcid === 1644" [class.lucky]="item.npcid === 7233" *ngIf="showImpling(item)">
-        {{ item.insertedtime | date: 'mediumTime' }} - World {{ item.world }} - {{ getImplingName(item.npcid) }} - <a href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }},{{ item.ycoord }}</a>  
-      </li>
-    </ng-container>
-  </div>
-</div>
+  <section class="card controls" *ngIf="newImplings?.length">
+    <div class="field">
+      <label class="field__label" for="sounds">Notification sound</label>
+      <select id="sounds" class="select" (change)="onChange($event.target.value)" name="sounds">
+        <option value="">--None--</option>
+        <option value="impling">Impling!</option>
+        <option value="whistle">Whistle</option>
+        <option value="iphone">Iphone</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <span class="field__label">Show</span>
+      <div class="chips">
+        <label class="chip">
+          <input type="checkbox" name="crystal" (click)="toggleId(8741)" checked>
+          <span>Crystal</span>
+        </label>
+        <label class="chip">
+          <input type="checkbox" name="magpie" (click)="toggleId(1642)" checked>
+          <span>Magpie</span>
+        </label>
+        <label class="chip">
+          <input type="checkbox" name="ninja" (click)="toggleId(1643)" checked>
+          <span>Ninja</span>
+        </label>
+        <label class="chip chip--dragon">
+          <input type="checkbox" name="dragon" (click)="toggleId(1644)" checked>
+          <span>Dragon</span>
+        </label>
+        <label class="chip chip--lucky">
+          <input type="checkbox" name="lucky" (click)="toggleId(7233)" checked>
+          <span>Lucky</span>
+        </label>
+        <label class="chip">
+          <input type="checkbox" name="puropuro" (click)="togglePuro()" checked>
+          <span>Puro-Puro</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="card feed" *ngIf="newImplings?.length">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>World</th>
+          <th>Impling</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of newImplings">
+          <tr [class.dragon]="item.npcid === 1644" [class.lucky]="item.npcid === 7233" *ngIf="showImpling(item)">
+            <td class="muted">{{ item.insertedtime | date: 'mediumTime' }}</td>
+            <td>{{ item.world }}</td>
+            <td class="name">{{ getImplingName(item.npcid) }}</td>
+            <td>
+              <a target="_blank" rel="noopener" href="https://explv.github.io/?centreX={{item.xcoord}}&centreY={{item.ycoord}}&centreZ=0&zoom=11">{{ item.xcoord }}, {{ item.ycoord }}</a>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </section>
+</main>
