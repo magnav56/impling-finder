@@ -216,11 +216,6 @@
   border-radius: 6px;
 }
 
-.notice--warn {
-  color: var(--lucky);
-  border-color: rgba(250, 162, 0, 0.5);
-  background: rgba(250, 162, 0, 0.08);
-}
 
 .empty {
   padding: 2rem 0;

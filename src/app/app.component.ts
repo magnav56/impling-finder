@@ -6,7 +6,6 @@ import { getAreaName, isInPuro } from './areas';
 
 interface Impling {
   discoveredtime: number; // unix seconds
-  insertedtime: string;
   npcid: number;
   plane: number;
   world: number;
@@ -42,11 +41,13 @@ interface Settings {
   alertsEnabled: boolean;
 }
 
+// Same read endpoint and publishable key the ImplingFinderRT RuneLite plugin
+// uses. It only returns sightings from the last 10 minutes.
 const API_URL =
-  'https://puos0bfgxc2lno5-implingdb.adb.us-phoenix-1.oraclecloudapps.com/ords/impling/implingdev/dev?limit=30';
-const POLL_MS = 4000;
+  'https://zoorgufqkavyngfhucgc.supabase.co/functions/v1/get-implings';
+const API_KEY = 'sb_publishable_QPK-l1a9QAakMIHPrCDCQQ_sY-quMIT';
+const POLL_MS = 8000;
 const NEW_BADGE_MS = 15000;
-const STALE_MS = 30 * 60 * 1000;
 const MERGE_DISTANCE = 30; // tiles
 const MERGE_GAP_MS = 10 * 60 * 1000;
 const SETTINGS_KEY = 'impling-finder-settings';
@@ -66,6 +67,17 @@ const TYPES: ImplingType[] = [
   { id: 1644, name: 'Dragon', slug: 'dragon', tier: 11 },
   { id: 7233, name: 'Lucky', slug: 'lucky', tier: 12 },
 ];
+
+// Each impling type has more than one NPC id (e.g. 1652 is also a Magpie, and
+// Crystal implings have a variant per jar colour). Map them all to the ids
+// above so filters, sounds and colours work for every variant.
+function normalize(i: Impling): Impling {
+  let npcid = i.npcid;
+  if (npcid >= 1645 && npcid <= 1654) npcid -= 10;
+  else if (npcid === 7302) npcid = 7233;
+  else if (npcid >= 8742 && npcid <= 8757) npcid = 8741;
+  return { ...i, npcid };
+}
 
 const DEFAULT_SETTINGS: Settings = {
   hiddenIds: [],
@@ -144,10 +156,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.loading = true;
     try {
       const data = await this.http
-        .get<{ items: Impling[] }>(API_URL)
+        .get<Impling[]>(API_URL, {
+          headers: { apikey: API_KEY, Authorization: `Bearer ${API_KEY}` },
+        })
         .pipe(timeout(10000))
         .toPromise();
-      this.onReports(data.items || []);
+      this.onReports((Array.isArray(data) ? data : []).map(normalize));
       this.connection = 'live';
       this.lastUpdate = Date.now();
     } catch (e) {
@@ -183,9 +197,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private seenAt(i: Impling): number {
-    return i.discoveredtime
-      ? i.discoveredtime * 1000
-      : Date.parse(i.insertedtime);
+    return i.discoveredtime * 1000;
   }
 
   public rebuild() {
@@ -280,18 +292,16 @@ export class AppComponent implements OnInit, OnDestroy {
     return `${Math.floor(s / 86400)}d`;
   }
 
-  // Fresh sightings are fully opaque and fade out over 30 minutes.
+  // Fresh sightings are fully opaque and fade out until the API drops them
+  // after 10 minutes.
   public fade(s: Sighting): number {
     const minutes = (this.now - s.seenAt) / 60000;
     if (minutes <= 2) return 1;
-    return Math.max(0.45, 1 - ((minutes - 2) / 28) * 0.55);
+    return Math.max(0.45, 1 - ((minutes - 2) / 8) * 0.55);
   }
 
-  public staleFor(): string | null {
-    if (this.connection !== 'live' || !this.reports.length) return null;
-    const newest = Math.max(...this.reports.map((i) => this.seenAt(i)));
-    const gap = this.now - newest;
-    return gap > STALE_MS ? this.duration(gap) : null;
+  public hasReports(): boolean {
+    return this.reports.length > 0;
   }
 
   public statusLabel(): string {
