@@ -46,7 +46,10 @@ interface Settings {
 const API_URL =
   'https://zoorgufqkavyngfhucgc.supabase.co/functions/v1/get-implings';
 const API_KEY = 'sb_publishable_QPK-l1a9QAakMIHPrCDCQQ_sY-quMIT';
-const POLL_MS = 8000;
+// The API owner asked clients to poll at a random 5-10s interval so
+// requests from many users don't arrive in bursts.
+const POLL_MIN_MS = 5000;
+const POLL_MAX_MS = 10000;
 const NEW_BADGE_MS = 15000;
 const MERGE_DISTANCE = 30; // tiles
 const MERGE_GAP_MS = 10 * 60 * 1000;
@@ -135,18 +138,25 @@ export class AppComponent implements OnInit, OnDestroy {
   private unread = 0;
   private unreadName = '';
   private unreadNpc = 0;
-  private timers: number[] = [];
+  private clockTimer = 0;
+  private pollTimer = 0;
 
   ngOnInit() {
-    this.fetch();
-    this.timers.push(
-      window.setInterval(() => this.fetch(), POLL_MS),
-      window.setInterval(() => (this.now = Date.now()), 1000)
-    );
+    this.poll();
+    this.clockTimer = window.setInterval(() => (this.now = Date.now()), 1000);
   }
 
   ngOnDestroy() {
-    this.timers.forEach((t) => clearInterval(t));
+    clearInterval(this.clockTimer);
+    clearTimeout(this.pollTimer);
+  }
+
+  // Waits for each request to finish, then schedules the next one after a
+  // fresh random delay.
+  private async poll() {
+    await this.fetch();
+    const delay = POLL_MIN_MS + Math.random() * (POLL_MAX_MS - POLL_MIN_MS);
+    this.pollTimer = window.setTimeout(() => this.poll(), delay);
   }
 
   // --- Data -------------------------------------------------------------
