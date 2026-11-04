@@ -67,12 +67,10 @@
       <div class="notice" *ngIf="settings.alertsEnabled && notificationsBlocked()">
         Desktop notifications are blocked for this site in your browser settings.
       </div>
-      <div class="notice notice--warn" *ngIf="staleFor() as stale">
-        No new spawns reported for {{ stale }}. The data feed may be down.
-      </div>
-
       <div class="empty" *ngIf="!sightings.length">
-        {{ connection === 'live' ? 'No spawns match your filters.' : 'Loading spawns…' }}
+        <ng-container *ngIf="connection !== 'live'">Loading spawns…</ng-container>
+        <ng-container *ngIf="connection === 'live' && hasReports()">No spawns match your filters.</ng-container>
+        <ng-container *ngIf="connection === 'live' && !hasReports()">No implings spotted in the last 10 minutes.</ng-container>
       </div>
 
       <ul class="feed">
