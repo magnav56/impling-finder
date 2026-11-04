@@ -337,10 +337,9 @@ function AppComponent_ng_template_24_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](1, "Select a spawn to see it on the map.");
     _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
 } }
-// Same read endpoint and publishable key the ImplingFinderRT RuneLite plugin
-// uses. It only returns sightings from the last 10 minutes.
-const API_URL = 'https://zoorgufqkavyngfhucgc.supabase.co/functions/v1/get-implings';
-const API_KEY = 'sb_publishable_QPK-l1a9QAakMIHPrCDCQQ_sY-quMIT';
+// Our Cloudflare Worker (see proxy/), which relays the ImplingFinderRT API
+// with CORS headers. It returns sightings from the last 10 minutes.
+const API_URL = 'https://impling-proxy.magnav56-b1e.workers.dev/';
 // The API owner asked clients to poll at a random 5-10s interval so
 // requests from many users don't arrive in bursts.
 const POLL_MIN_MS = 5000;
@@ -449,9 +448,7 @@ class AppComponent {
             this.loading = true;
             try {
                 const data = yield this.http
-                    .get(API_URL, {
-                    headers: { apikey: API_KEY, Authorization: `Bearer ${API_KEY}` },
-                })
+                    .get(API_URL)
                     .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["timeout"])(10000))
                     .toPromise();
                 this.onReports((Array.isArray(data) ? data : []).map(normalize));
@@ -995,6 +992,10 @@ const AREAS = [
     { name: 'Kebos Lowlands', x1: 1150, x2: 1350, y1: 3550, y2: 3850 },
     { name: 'Civitas illa Fortis', x1: 1640, x2: 1800, y1: 3050, y2: 3170 },
     { name: 'Varlamore', x1: 1150, x2: 1950, y1: 2850, y2: 3450 },
+    // Broad kingdoms, for spots between the named places above.
+    { name: 'Misthalin', x1: 3070, x2: 3400, y1: 3140, y2: 3520 },
+    { name: 'Asgarnia', x1: 2860, x2: 3070, y1: 3140, y2: 3600 },
+    { name: 'Kandarin', x1: 2380, x2: 2860, y1: 2940, y2: 3630 },
 ];
 function getAreaName(x, y) {
     const area = AREAS.find((a) => x >= a.x1 && x <= a.x2 && y >= a.y1 && y <= a.y2);
