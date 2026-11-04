@@ -50,15 +50,6 @@
             <span></span>
           </label>
         </div>
-
-        <div class="settings__row">
-          <span>Minimum tier</span>
-          <select class="select" (change)="setMinTier($event.target.value)">
-            <option *ngFor="let o of tierOptions" [value]="o.value" [selected]="o.value === settings.minTier">
-              {{ o.label }}
-            </option>
-          </select>
-        </div>
       </section>
 
       <div class="notice" *ngIf="settings.alertsEnabled && !audioUnlocked">
