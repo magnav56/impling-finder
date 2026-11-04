@@ -41,11 +41,9 @@ interface Settings {
   alertsEnabled: boolean;
 }
 
-// Same read endpoint and publishable key the ImplingFinderRT RuneLite plugin
-// uses. It only returns sightings from the last 10 minutes.
-const API_URL =
-  'https://zoorgufqkavyngfhucgc.supabase.co/functions/v1/get-implings';
-const API_KEY = 'sb_publishable_QPK-l1a9QAakMIHPrCDCQQ_sY-quMIT';
+// Our Cloudflare Worker (see proxy/), which relays the ImplingFinderRT API
+// with CORS headers. It returns sightings from the last 10 minutes.
+const API_URL = 'https://impling-proxy.magnav56-b1e.workers.dev/';
 // The API owner asked clients to poll at a random 5-10s interval so
 // requests from many users don't arrive in bursts.
 const POLL_MIN_MS = 5000;
@@ -166,9 +164,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.loading = true;
     try {
       const data = await this.http
-        .get<Impling[]>(API_URL, {
-          headers: { apikey: API_KEY, Authorization: `Bearer ${API_KEY}` },
-        })
+        .get<Impling[]>(API_URL)
         .pipe(timeout(10000))
         .toPromise();
       this.onReports((Array.isArray(data) ? data : []).map(normalize));

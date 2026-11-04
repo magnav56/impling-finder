@@ -83,6 +83,11 @@ const AREAS: Area[] = [
   { name: 'Kebos Lowlands', x1: 1150, x2: 1350, y1: 3550, y2: 3850 },
   { name: 'Civitas illa Fortis', x1: 1640, x2: 1800, y1: 3050, y2: 3170 },
   { name: 'Varlamore', x1: 1150, x2: 1950, y1: 2850, y2: 3450 },
+
+  // Broad kingdoms, for spots between the named places above.
+  { name: 'Misthalin', x1: 3070, x2: 3400, y1: 3140, y2: 3520 },
+  { name: 'Asgarnia', x1: 2860, x2: 3070, y1: 3140, y2: 3600 },
+  { name: 'Kandarin', x1: 2380, x2: 2860, y1: 2940, y2: 3630 },
 ];
 
 export function getAreaName(x: number, y: number): string {
