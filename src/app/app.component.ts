@@ -36,7 +36,6 @@ type Sound = '' | 'impling' | 'whistle' | 'iphone';
 interface Settings {
   hiddenIds: number[];
   showPuro: boolean;
-  minTier: number;
   sounds: { [npcid: number]: Sound };
   alertsEnabled: boolean;
 }
@@ -83,7 +82,6 @@ function normalize(i: Impling): Impling {
 const DEFAULT_SETTINGS: Settings = {
   hiddenIds: [],
   showPuro: true,
-  minTier: 0,
   sounds: { 1644: 'impling', 7233: 'impling' },
   alertsEnabled: false,
 };
@@ -103,13 +101,6 @@ export class AppComponent implements OnInit, OnDestroy {
   public readonly filterTypes = TYPES.filter((t) =>
     [1642, 1643, 8741, 1644, 7233].includes(t.id)
   );
-  public readonly tierOptions = [
-    { value: 0, label: 'All implings' },
-    { value: 8, label: 'Magpie and above' },
-    { value: 9, label: 'Ninja and above' },
-    { value: 10, label: 'Crystal and above' },
-    { value: 11, label: 'Dragon and above' },
-  ];
   public readonly soundOptions: { value: Sound; label: string }[] = [
     { value: '', label: 'No sound' },
     { value: 'impling', label: 'Impling!' },
@@ -263,10 +254,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private isVisible(i: Impling): boolean {
-    const type = this.getType(i.npcid);
     return (
       !this.settings.hiddenIds.includes(i.npcid) &&
-      type.tier >= this.settings.minTier &&
       (this.settings.showPuro || !isInPuro(i.xcoord, i.ycoord))
     );
   }
@@ -474,11 +463,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public togglePuro() {
     this.settings.showPuro = !this.settings.showPuro;
-    this.onSettingsChange();
-  }
-
-  public setMinTier(value: string) {
-    this.settings.minTier = Number(value);
     this.onSettingsChange();
   }
 
